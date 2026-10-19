@@ -364,6 +364,103 @@
       box-shadow: 0 0 0 3px rgba(23, 107, 91, 0.08);
     }
 
+    .reminder {
+      position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin: 14px 0 2px;
+      padding: 12px 42px 12px 13px;
+      border: 1px solid rgba(176, 74, 50, 0.18);
+      border-radius: 14px;
+      background: linear-gradient(135deg, #fdf1eb, #fbe7df);
+      color: #7a3020;
+      animation: reminder-in 0.25s ease both;
+    }
+
+    .reminder[hidden] { display: none; }
+
+    @keyframes reminder-in {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .reminder-icon {
+      display: grid;
+      flex: 0 0 auto;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #fff;
+      color: var(--high);
+      box-shadow: 0 2px 8px rgba(176, 74, 50, 0.12);
+    }
+
+    .reminder-icon svg { width: 18px; height: 18px; }
+
+    .reminder-copy {
+      display: grid;
+      flex: 1;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .reminder-copy strong {
+      color: #71291a;
+      font-size: 13.5px;
+      font-weight: 650;
+      line-height: 1.4;
+    }
+
+    .reminder-copy span {
+      overflow: hidden;
+      color: #94513e;
+      font-size: 12px;
+      line-height: 1.5;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .reminder-action {
+      flex: 0 0 auto;
+      padding: 7px 12px;
+      border: 0;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--high);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(176, 74, 50, 0.1);
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .reminder-action:hover { background: #fff8f5; transform: translateY(-1px); }
+    .reminder-action:focus-visible { outline: 2px solid var(--high); outline-offset: 2px; }
+
+    .reminder-close {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      padding: 0;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: #a46755;
+      font-size: 17px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .reminder-close:hover { background: rgba(255, 255, 255, 0.7); color: var(--high); }
+    .reminder-close:focus-visible { outline: 2px solid var(--high); outline-offset: 1px; }
+
     .task-list {
       margin: 0;
       padding: 4px 0;
@@ -382,6 +479,7 @@
     .task:not(:last-child) { border-bottom: 1px solid #f1ede4; }
     .task:hover { background: #fbf9f4; }
     .task.pop { animation: pop 0.3s ease both; }
+    .task.is-overdue { box-shadow: inset 3px 0 0 rgba(176, 74, 50, 0.55); }
 
     @keyframes pop {
       from { opacity: 0; transform: translateY(-6px); }
@@ -609,6 +707,52 @@
       text-align: center;
     }
 
+    .toast-stack {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 90;
+      display: grid;
+      gap: 10px;
+      width: min(360px, calc(100vw - 32px));
+    }
+
+    .toast {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 15px;
+      border-radius: 12px;
+      background: #262c27;
+      color: #fff;
+      font-size: 13px;
+      line-height: 1.5;
+      box-shadow: 0 16px 40px -16px rgba(0, 0, 0, 0.6);
+      animation: toast-in 0.25s ease both;
+    }
+
+    .toast::before {
+      content: "";
+      flex: 0 0 auto;
+      width: 8px;
+      height: 8px;
+      margin-top: 6px;
+      border-radius: 50%;
+      background: #f0a28b;
+      box-shadow: 0 0 0 3px rgba(240, 162, 139, 0.15);
+    }
+
+    .toast.leaving { animation: toast-out 0.22s ease forwards; }
+
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes toast-out {
+      to { opacity: 0; transform: translateY(8px); }
+    }
+
     .shake { animation: shake 0.36s ease; }
 
     @keyframes shake {
@@ -642,13 +786,19 @@
       .board { padding: 16px 14px 12px; }
       .toolbar { gap: 10px; }
       .filters { width: 100%; }
-      .filter { flex: 1; justify-content: center; padding: 8px 6px; }
+      .filter { flex: 1; justify-content: center; gap: 4px; padding: 8px 4px; font-size: 12.5px; }
+      .filter .count { min-width: 16px; padding: 1px 4px; }
       .search { width: 100%; }
       .search input { width: 100%; }
+      .reminder { align-items: flex-start; padding: 12px 36px 12px 12px; }
+      .reminder-copy { flex: 1 1 calc(100% - 46px); }
+      .reminder-copy span { white-space: normal; }
+      .reminder-action { margin-left: 44px; }
       .task { padding: 14px 4px; }
       .task-actions { opacity: 1; }
       .task-title { font-size: 15px; }
       .board-footer { font-size: 12px; }
+      .toast-stack { right: 16px; bottom: 16px; width: calc(100vw - 32px); }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -722,6 +872,9 @@
           <button class="filter" type="button" role="tab" aria-selected="false" data-filter="done">
             已完成 <span class="count" data-count="done">0</span>
           </button>
+          <button class="filter" type="button" role="tab" aria-selected="false" data-filter="overdue">
+            已逾期 <span class="count" data-count="overdue">0</span>
+          </button>
         </div>
         <div class="search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -731,6 +884,22 @@
           <label class="sr-only" for="searchInput">搜索待办</label>
           <input id="searchInput" type="search" placeholder="搜索待办" autocomplete="off">
         </div>
+      </div>
+
+      <div class="reminder" id="reminder" role="status" aria-live="polite" hidden>
+        <div class="reminder-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 7.5v5.5"></path>
+            <path d="M12 16.6h.01"></path>
+          </svg>
+        </div>
+        <div class="reminder-copy">
+          <strong id="reminderTitle"></strong>
+          <span id="reminderText"></span>
+        </div>
+        <button class="reminder-action" id="reminderAction" type="button">查看逾期</button>
+        <button class="reminder-close" id="reminderClose" type="button" aria-label="关闭此提醒">×</button>
       </div>
 
       <ul class="task-list" id="taskList"></ul>
@@ -753,8 +922,10 @@
       </footer>
     </section>
 
-    <p class="hint">按 Enter 快速添加 · 双击任务可编辑 · 数据只保存在本机浏览器</p>
+    <p class="hint">按 Enter 快速添加 · 双击任务可编辑 · 逾期自动提醒 · 数据只保存在本机浏览器</p>
   </main>
+
+  <div class="toast-stack" id="toastStack" aria-live="assertive" aria-atomic="false"></div>
 
   <noscript>
     <p style="text-align:center;padding:0 24px 32px;color:#7a7f77;">这个页面需要启用 JavaScript 才能添加和管理待办。</p>
@@ -787,10 +958,17 @@
         ring: document.getElementById("progressRing"),
         percent: document.getElementById("progressPercent"),
         today: document.getElementById("todayLabel"),
+        reminder: document.getElementById("reminder"),
+        reminderTitle: document.getElementById("reminderTitle"),
+        reminderText: document.getElementById("reminderText"),
+        reminderAction: document.getElementById("reminderAction"),
+        reminderClose: document.getElementById("reminderClose"),
+        toastStack: document.getElementById("toastStack"),
         counts: {
           all: document.querySelector('[data-count="all"]'),
           active: document.querySelector('[data-count="active"]'),
-          done: document.querySelector('[data-count="done"]')
+          done: document.querySelector('[data-count="done"]'),
+          overdue: document.querySelector('[data-count="overdue"]')
         }
       };
 
@@ -799,6 +977,9 @@
       let searchTerm = "";
       let editingId = null;
       let popId = null;
+      let dismissedReminderSignature = "";
+      let lastOverdueIds = null;
+      let currentDayKey = isoDate(new Date());
 
       function uid() {
         if (window.crypto && typeof window.crypto.randomUUID === "function") {
@@ -902,6 +1083,105 @@
         };
       }
 
+      function isOverdue(task) {
+        return Boolean(task && !task.done && task.due && task.due < isoDate(new Date()));
+      }
+
+      function getOverdueTasks() {
+        return tasks.filter(isOverdue);
+      }
+
+      function getDueTodayTasks() {
+        const today = isoDate(new Date());
+        return tasks.filter((task) => !task.done && task.due === today);
+      }
+
+      function shortenText(text, maxLength) {
+        return text.length > maxLength ? text.slice(0, maxLength) + "…" : text;
+      }
+
+      function reminderSignature(overdue, dueToday) {
+        const overdueIds = overdue.map((task) => task.id).sort().join(",");
+        const todayIds = dueToday.map((task) => task.id).sort().join(",");
+        return overdueIds + "::" + todayIds;
+      }
+
+      function updateDocumentTitle() {
+        const overdueCount = getOverdueTasks().length;
+        document.title = overdueCount > 0
+          ? "(" + overdueCount + ") 今日待办 · Focus List"
+          : "今日待办 · Focus List";
+      }
+
+      function updateReminder() {
+        const overdue = getOverdueTasks();
+        const dueToday = getDueTodayTasks();
+        const signature = reminderSignature(overdue, dueToday);
+
+        if (overdue.length === 0) {
+          dismissedReminderSignature = "";
+          els.reminder.hidden = true;
+          els.reminder.dataset.signature = "";
+          return;
+        }
+
+        if (dismissedReminderSignature && dismissedReminderSignature !== signature) {
+          dismissedReminderSignature = "";
+        }
+
+        const names = overdue
+          .slice(0, 2)
+          .map((task) => "“" + shortenText(task.text, 18) + "”")
+          .join("、");
+        let detail = names;
+        if (overdue.length > 2) detail += " 等 " + overdue.length + " 项";
+        if (dueToday.length > 0) detail += " · 今天另有 " + dueToday.length + " 项到期";
+
+        els.reminderTitle.textContent = overdue.length + " 项任务已逾期";
+        els.reminderText.textContent = detail;
+        els.reminder.dataset.signature = signature;
+        els.reminder.hidden = dismissedReminderSignature === signature;
+      }
+
+      function showToast(message) {
+        const toast = document.createElement("div");
+        toast.className = "toast";
+        toast.textContent = message;
+        els.toastStack.appendChild(toast);
+        window.setTimeout(() => {
+          toast.classList.add("leaving");
+          window.setTimeout(() => toast.remove(), 240);
+        }, 5200);
+      }
+
+      function checkTimeSensitiveState(options = {}) {
+        const notify = Boolean(options.notify);
+        const today = isoDate(new Date());
+        syncDueInput();
+
+        const overdue = getOverdueTasks();
+        if (notify && lastOverdueIds) {
+          const newlyOverdue = overdue.filter((task) => !lastOverdueIds.has(task.id));
+          if (newlyOverdue.length === 1) {
+            showToast("“" + shortenText(newlyOverdue[0].text, 26) + "”已逾期，请及时处理。");
+          } else if (newlyOverdue.length > 1) {
+            showToast(newlyOverdue.length + " 项任务已逾期：" + newlyOverdue
+              .slice(0, 2)
+              .map((task) => "“" + shortenText(task.text, 14) + "”")
+              .join("、") + (newlyOverdue.length > 2 ? " 等" : ""));
+          }
+        }
+        lastOverdueIds = new Set(overdue.map((task) => task.id));
+
+        if (today !== currentDayKey) {
+          currentDayKey = today;
+          els.today.textContent = formatToday(new Date());
+          render();
+          return;
+        }
+        updateStats();
+      }
+
       const icons = {
         check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4.5 4.5L19 7"></path></svg>',
         edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>',
@@ -910,7 +1190,10 @@
 
       function buildTask(task) {
         const item = document.createElement("li");
-        item.className = "task" + (task.done ? " done" : "") + (editingId === task.id ? " editing" : "");
+        item.className = "task"
+          + (task.done ? " done" : "")
+          + (editingId === task.id ? " editing" : "")
+          + (isOverdue(task) ? " is-overdue" : "");
         item.dataset.id = task.id;
         if (task.id === popId) item.classList.add("pop");
 
@@ -1011,7 +1294,8 @@
           const matchesFilter =
             currentFilter === "all" ||
             (currentFilter === "active" && !task.done) ||
-            (currentFilter === "done" && task.done);
+            (currentFilter === "done" && task.done) ||
+            (currentFilter === "overdue" && isOverdue(task));
           const matchesSearch = !query || task.text.toLowerCase().includes(query);
           return matchesFilter && matchesSearch;
         });
@@ -1038,6 +1322,10 @@
             els.emptyTitle.textContent = "还没有已完成的任务";
             els.emptyText.textContent = "完成一件待办后，它会出现在这里。";
             els.emptyAdd.hidden = true;
+          } else if (currentFilter === "overdue") {
+            els.emptyTitle.textContent = "没有逾期任务";
+            els.emptyText.textContent = "所有带截止日期的任务都还在计划内。";
+            els.emptyAdd.hidden = true;
           } else {
             els.emptyTitle.textContent = "还没有待办";
             els.emptyText.textContent = "从上面添加第一件事，让今天有个清晰的开始。";
@@ -1058,12 +1346,14 @@
         const total = tasks.length;
         const done = tasks.filter((task) => task.done).length;
         const active = total - done;
+        const overdue = getOverdueTasks().length;
         const ratio = total ? done / total : 0;
         const percent = Math.round(ratio * 100);
 
         els.counts.all.textContent = String(total);
         els.counts.active.textContent = String(active);
         els.counts.done.textContent = String(done);
+        els.counts.overdue.textContent = String(overdue);
         els.percent.textContent = percent + "%";
         els.ring.style.strokeDashoffset = String(CIRCUMFERENCE * (1 - ratio));
 
@@ -1071,10 +1361,15 @@
           els.summary.textContent = "还没有待办";
         } else if (active === 0) {
           els.summary.textContent = "全部完成，今天辛苦了。";
+        } else if (overdue > 0) {
+          els.summary.textContent = "还有 " + active + " 件待完成，其中 " + overdue + " 件已逾期";
         } else {
           els.summary.textContent = "还有 " + active + " 件待完成";
         }
         els.clearDone.disabled = done === 0;
+
+        updateReminder();
+        updateDocumentTitle();
       }
 
       function syncFilterButtons() {
@@ -1129,7 +1424,7 @@
 
         els.input.value = "";
         els.due.value = "";
-        if (currentFilter === "done") {
+        if (currentFilter === "done" || currentFilter === "overdue") {
           currentFilter = "all";
           syncFilterButtons();
         }
@@ -1209,6 +1504,19 @@
         render();
       });
 
+      els.reminderAction.addEventListener("click", () => {
+        if (searchTerm) {
+          searchTerm = "";
+          els.search.value = "";
+        }
+        setFilter("overdue");
+      });
+
+      els.reminderClose.addEventListener("click", () => {
+        dismissedReminderSignature = els.reminder.dataset.signature || "";
+        els.reminder.hidden = true;
+      });
+
       els.emptyAdd.addEventListener("click", () => {
         els.input.focus();
         els.input.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1268,6 +1576,11 @@
       syncDueInput();
       tasks = loadTasks();
       render();
+      lastOverdueIds = new Set(getOverdueTasks().map((task) => task.id));
+      window.setInterval(() => checkTimeSensitiveState({ notify: true }), 60000);
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) checkTimeSensitiveState({ notify: true });
+      });
     })();
   </script>
 </body>
