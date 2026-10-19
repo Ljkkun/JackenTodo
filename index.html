@@ -232,6 +232,22 @@
     .field select:focus-visible,
     .field input:focus-visible { outline: 2px solid rgba(23, 107, 91, 0.35); outline-offset: 2px; }
 
+    .field.is-invalid {
+      background: var(--high-bg);
+      box-shadow: inset 0 0 0 1px rgba(176, 74, 50, 0.35);
+    }
+
+    .field.is-invalid label { color: var(--high); }
+
+    .due-hint {
+      margin: 8px 2px 0;
+      color: var(--high);
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .due-hint[hidden] { display: none; }
+
     .add-btn {
       display: inline-flex;
       align-items: center;
@@ -686,10 +702,11 @@
           </div>
           <div class="field">
             <label for="dueInput">截止</label>
-            <input id="dueInput" type="date" aria-label="截止日期">
+            <input id="dueInput" type="date" aria-label="截止日期" aria-describedby="dueHint">
           </div>
           <button class="add-btn" type="submit"><span aria-hidden="true">+</span> 添加任务</button>
         </div>
+        <p class="due-hint" id="dueHint" role="alert" hidden>截止日期不能早于今天</p>
       </form>
     </section>
 
@@ -757,6 +774,7 @@
         input: document.getElementById("taskInput"),
         priority: document.getElementById("prioritySelect"),
         due: document.getElementById("dueInput"),
+        dueHint: document.getElementById("dueHint"),
         list: document.getElementById("taskList"),
         empty: document.getElementById("emptyState"),
         emptyTitle: document.getElementById("emptyTitle"),
@@ -805,6 +823,17 @@
         const d = new Date(date);
         d.setDate(d.getDate() + amount);
         return d;
+      }
+
+      function syncDueInput() {
+        els.due.min = isoDate(new Date());
+      }
+
+      function setDueError(visible) {
+        const field = els.due.closest(".field");
+        els.dueHint.hidden = !visible;
+        if (field) field.classList.toggle("is-invalid", visible);
+        els.due.setAttribute("aria-invalid", String(visible));
       }
 
       function normalize(task) {
@@ -1068,6 +1097,7 @@
 
       function addTask(event) {
         event.preventDefault();
+        syncDueInput();
         const text = els.input.value.trim();
         if (!text) {
           els.input.classList.remove("shake");
@@ -1076,6 +1106,13 @@
           els.input.focus();
           return;
         }
+
+        if (els.due.value && els.due.value < isoDate(new Date())) {
+          setDueError(true);
+          els.due.focus();
+          return;
+        }
+        setDueError(false);
 
         const task = {
           id: uid(),
@@ -1144,6 +1181,8 @@
 
       els.form.addEventListener("submit", addTask);
       els.input.addEventListener("input", () => els.input.classList.remove("shake"));
+      els.due.addEventListener("input", () => setDueError(false));
+      els.due.addEventListener("change", () => setDueError(false));
 
       els.filters.forEach((button) => {
         button.addEventListener("click", () => setFilter(button.dataset.filter));
@@ -1226,6 +1265,7 @@
 
       els.ring.style.strokeDasharray = CIRCUMFERENCE + " " + CIRCUMFERENCE;
       els.today.textContent = formatToday(new Date());
+      syncDueInput();
       tasks = loadTasks();
       render();
     })();
