@@ -687,6 +687,41 @@
       font-size: 13px;
     }
 
+    .footer-summary {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 14px;
+    }
+
+    .footer-stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      font-size: 12.5px;
+    }
+
+    .footer-stat[hidden] { display: none; }
+
+    .footer-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #c7a662;
+    }
+
+    .footer-stat strong {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 650;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .footer-stat-done .footer-dot { background: var(--accent); }
+    .footer-stat-overdue { color: #94513e; }
+    .footer-stat-overdue .footer-dot { background: var(--high); }
+
     .footer-actions {
       display: flex;
       align-items: center;
@@ -948,7 +983,20 @@
       </div>
 
       <footer class="board-footer">
-        <span id="summary" aria-live="polite">还没有待办</span>
+        <div class="footer-summary" id="summary" aria-live="polite">
+          <span class="footer-stat footer-stat-pending">
+            <span class="footer-dot" aria-hidden="true"></span>
+            待完成 <strong id="summaryPending">0</strong>
+          </span>
+          <span class="footer-stat footer-stat-done">
+            <span class="footer-dot" aria-hidden="true"></span>
+            已完成 <strong id="summaryDone">0</strong>
+          </span>
+          <span class="footer-stat footer-stat-overdue" id="summaryOverdueWrap" hidden>
+            <span class="footer-dot" aria-hidden="true"></span>
+            逾期 <strong id="summaryOverdue">0</strong>
+          </span>
+        </div>
         <div class="footer-actions">
           <button class="export-btn" type="button" id="exportBtn" title="导出全部待办为 TXT 文件">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -995,6 +1043,10 @@
         filters: Array.from(document.querySelectorAll(".filter")),
         search: document.getElementById("searchInput"),
         summary: document.getElementById("summary"),
+        summaryPending: document.getElementById("summaryPending"),
+        summaryDone: document.getElementById("summaryDone"),
+        summaryOverdue: document.getElementById("summaryOverdue"),
+        summaryOverdueWrap: document.getElementById("summaryOverdueWrap"),
         clearDone: document.getElementById("clearDone"),
         ring: document.getElementById("progressRing"),
         percent: document.getElementById("progressPercent"),
@@ -1398,15 +1450,10 @@
         els.percent.textContent = percent + "%";
         els.ring.style.strokeDashoffset = String(CIRCUMFERENCE * (1 - ratio));
 
-        if (total === 0) {
-          els.summary.textContent = "还没有待办";
-        } else if (active === 0) {
-          els.summary.textContent = "全部完成，今天辛苦了。";
-        } else if (overdue > 0) {
-          els.summary.textContent = "还有 " + active + " 件待完成，其中 " + overdue + " 件已逾期";
-        } else {
-          els.summary.textContent = "还有 " + active + " 件待完成";
-        }
+        els.summaryPending.textContent = String(active);
+        els.summaryDone.textContent = String(done);
+        els.summaryOverdue.textContent = String(overdue);
+        els.summaryOverdueWrap.hidden = overdue === 0;
         els.clearDone.disabled = done === 0;
 
         updateReminder();
