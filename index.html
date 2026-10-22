@@ -996,6 +996,7 @@
         search: document.getElementById("searchInput"),
         summary: document.getElementById("summary"),
         clearDone: document.getElementById("clearDone"),
+        exportBtn: document.getElementById("exportBtn"),
         ring: document.getElementById("progressRing"),
         percent: document.getElementById("progressPercent"),
         today: document.getElementById("todayLabel"),
@@ -1021,6 +1022,7 @@
       let dismissedReminderSignature = "";
       let lastOverdueIds = null;
       let currentDayKey = isoDate(new Date());
+      let pendingExport = null;
 
       function uid() {
         if (window.crypto && typeof window.crypto.randomUUID === "function") {
@@ -1408,9 +1410,96 @@
           els.summary.textContent = "还有 " + active + " 件待完成";
         }
         els.clearDone.disabled = done === 0;
+        els.exportBtn.disabled = total === 0;
 
         updateReminder();
         updateDocumentTitle();
+      }
+
+      function formatDateTime(date) {
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        return isoDate(date) + " " + hours + ":" + minutes;
+      }
+
+      function buildExportText() {
+        const now = new Date();
+        const pending = tasks.filter((task) => !task.done).sort((a, b) => {
+          const overdueOrder = Number(isOverdue(b)) - Number(isOverdue(a));
+          if (overdueOrder !== 0) return overdueOrder;
+          if (a.due && b.due && a.due !== b.due) return a.due.localeCompare(b.due);
+          if (a.due && !b.due) return -1;
+          if (!a.due && b.due) return 1;
+          return a.createdAt - b.createdAt;
+        });
+        const completed = tasks.filter((task) => task.done).sort((a, b) => b.createdAt - a.createdAt);
+        const lines = [
+          "待办清单",
+          "导出时间：" + formatDateTime(now),
+          "共 " + tasks.length + " 项 ｜ 待完成 " + pending.length + " ｜ 已完成 " + completed.length + " ｜ 已逾期 " + getOverdueTasks().length,
+          ""
+        ];
+
+        const appendTask = (task, isDone) => {
+          let dueText = "未设置截止日期";
+          if (task.due) {
+            dueText = "截止 " + task.due;
+            if (!isDone && task.due < isoDate(now)) dueText += "（已逾期）";
+            else if (!isDone && task.due === isoDate(now)) dueText += "（今天截止）";
+          }
+          lines.push((isDone ? "[x] " : "[ ] ") + task.text);
+          lines.push("    优先级：" + PRIORITY_LABEL[task.priority] + " ｜ " + dueText);
+        };
+
+        if (pending.length > 0) {
+          lines.push("【待完成】（" + pending.length + "）", "");
+          pending.forEach((task, index) => {
+            appendTask(task, false);
+            if (index < pending.length - 1) lines.push("");
+          });
+          lines.push("");
+        }
+
+        if (completed.length > 0) {
+          lines.push("【已完成】（" + completed.length + "）", "");
+          completed.forEach((task, index) => {
+            appendTask(task, true);
+            if (index < completed.length - 1) lines.push("");
+          });
+          lines.push("");
+        }
+
+        lines.push("——", "由「今日待办」页面导出");
+        return lines.join("\r\n");
+      }
+
+      function prepareExport() {
+        if (tasks.length === 0) return false;
+
+        const now = new Date();
+        pendingExport = {
+          filename: "待办清单_" + isoDate(now) + ".txt",
+          content: "\uFEFF" + buildExportText()
+        };
+        return true;
+      }
+
+      function exportTasksAsTxt() {
+        if (!prepareExport()) {
+          showToast("暂无可导出的待办。");
+          return;
+        }
+
+        const blob = new Blob([pendingExport.content], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = pendingExport.filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+        showToast("已导出：" + pendingExport.filename);
       }
 
       function syncFilterButtons() {
@@ -1544,6 +1633,8 @@
         saveTasks();
         render();
       });
+
+      els.exportBtn.addEventListener("click", exportTasksAsTxt);
 
       els.reminderAction.addEventListener("click", () => {
         if (searchTerm) {
